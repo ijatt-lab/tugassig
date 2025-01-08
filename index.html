@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>WebGIS - Mosque Locator</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+      html, body, #map {
+        height: 100%;
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+
+      .popup-content {
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .popup-header {
+        font-weight: bold;
+        font-size: 16px;
+        color: #2c3e50;
+      }
+
+      .popup-image {
+        width: 100%;
+        height: auto;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+
+      .leaflet-popup-content {
+        width: 250px !important;
+      }
+
+      .custom-icon {
+        background-color: white;
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      }
+
+      .nav-link {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      .nav-link:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <script>
+      // Initialize the map
+      var map = L.map("map").setView([-7.8671717981887035, 110.14835510368931], 13);
+
+      // Add a modern basemap
+      var basemap = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      // Define a custom mosque icon
+      var mosqueIcon = L.icon({
+        iconUrl: "https://www.freeiconspng.com/uploads/mosque-icon-12.png",
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+        popupAnchor: [0, -40]
+      });
+
+      // Marker data for 10 mosques
+      var markers = [
+        {
+          coords: [-7.8671717981887035, 110.14835510368931],
+          name: "Grand Mosque of Kulon Progo",
+          address: "Masjid Agung Kulon Progo, Jalan KH Ahmad Dahlan, Wates, Area Sawah, Wates, Kec. Wates, Kabupaten Kulon Progo, Daerah Istimewa Yogyakarta 55651",
+          image: "https://source.unsplash.com/250x150/?mosque1",
+          link: "https://www.google.com/maps?q=-7.8671717981887035,110.14835510368931"
+        },
+        {
+          coords: [-7.8806254483602265, 110.13169010170175],
+          name: "Masjid Al-Hidayah",
+          address: "Jl. Raya Wates - Jogjakarta No.225, Danangan, Triharjo, Kec. Wates, Kabupaten Kulon Progo, Daerah Istimewa Yogyakarta 55651",
+          image: "https://source.unsplash.com/250x150/?mosque2",
+          link: "https://www.google.com/maps?q=-7.8806254483602265,110.13169010170175"
+        },
+        {
+          coords: [-7.842485657278907, 110.1678994247175],
+          name: "Masjid Agung Pengasih",
+          address: "5559+25J, Pengasih, Kulon Progo, Yogyakarta 55652",
+          image: "https://source.unsplash.com/250x150/?mosque3",
+          link: "https://www.google.com/maps?q=-7.842485657278907,110.1678994247175"
+        },
+        {
+          coords: [-7.866935729088879, 110.13534310345298],
+          name: "Masjid Nurul Iman",
+          address: "Jl. Ki Josuto No.678, Dukuh, Karangsari, Kec. Pengasih, Kabupaten Kulon Progo, Daerah Istimewa Yogyakarta 55652",
+          image: "https://source.unsplash.com/250x150/?mosque4",
+          link: "https://www.google.com/maps?q=-7.866935729088879,110.13534310345298"
+        },
+        {
+          coords: [-7.8669463346736705, 110.18041640573773],
+          name: "Masjid Asy-Syams",
+          address: "45MJ+655, Ngramang, Kedungsari, Kulon Progo, Yogyakarta 55652",
+          image: "https://source.unsplash.com/250x150/?mosque5",
+          link: "https://www.google.com/maps?q=-7.8669463346736705,110.18041640573773"
+        },
+        {
+          coords: [-7.865835826072927, 110.17532852318054],
+          name: "Masjid Polres Kulon Progo",
+          address: "45MG+M44, Ngramang, Kedungsari, Kulon Progo, Yogyakarta 55652",
+          image: "https://source.unsplash.com/250x150/?mosque6",
+          link: "https://www.google.com/maps?q=-7.865835826072927,110.17532852318054"
+        },
+        {
+          coords: [-7.866116435673956, 110.16778111853985],
+          name: "Masjid Al Hidayah",
+          address: "45M9+G4V, National Rte 3, Gn. Gempal, Giri Peni, Wates, Kulon Progo Regency, Special Region of Yogyakarta 55651",
+          image: "https://source.unsplash.com/250x150/?mosque7",
+          link: "https://www.google.com/maps?q=-7.866116435673956,110.16778111853985"
+        },
+        {
+          coords: [-7.866680888205387, 110.16108999667023],
+          name: "Masjid Al Hidayah Durungan",
+          address: "45M6+8C9, Jl. Kolonel Sugiono, Wates, Kulon Progo, Yogyakarta 55651",
+          image: "https://source.unsplash.com/250x150/?mosque8",
+          link: "https://www.google.com/maps?q=-7.866680888205387,110.16108999667023"
+        },
+        {
+          coords: [-7.872577147117059, 110.15058825412731],
+          name: "Masjid Ath-Thohiroh",
+          address: "45G2+X64, Kedung Pring, Giri Peni, Wates, Kulon Progo Regency, Special Region of Yogyakarta 55651",
+          image: "https://source.unsplash.com/250x150/?mosque9",
+          link: "https://www.google.com/maps?q=-7.872577147117059,110.15058825412731"
+        },
+        {
+          coords: [-7.883009293289849, 110.14653844825817],
+          name: "Masjid Al Islam",
+          address: "448W+RH3, Sanggrahan Lor, Bendungan, Wates, Kulon Progo, Yogyakarta 55651",
+          image: "https://source.unsplash.com/250x150/?mosque10",
+          link: "https://www.google.com/maps?q=-7.883009293289849,110.14653844825817"
+        }
+      ];
+
+      // Add markers with tooltips
+      markers.forEach(function(marker) {
+        var tooltip = L.marker(marker.coords, { icon: mosqueIcon })
+          .bindTooltip(marker.name, {
+            permanent: true,
+            direction: "top",
+            className: "custom-tooltip"
+          })
+          .addTo(map);
+
+        tooltip.bindPopup(`
+          <div class="popup-content">
+            <div class="popup-header">${marker.name}</div>
+            <img class="popup-image" src="${marker.image}" alt="${marker.name}" />
+            <p>${marker.address}</p>
+            <a class="nav-link" href="${marker.link}" target="_blank">Navigate to Location</a>
+          </div>
+        `);
+      });
+    </script>
+  </body>
+</html>
